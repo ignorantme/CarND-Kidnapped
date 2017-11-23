@@ -45,7 +45,7 @@ int main()
 
   // Create particle filter
   ParticleFilter pf;
-
+  int stop = 1;
   h.onMessage([&pf,&map,&delta_t,&sensor_range,&sigma_pos,&sigma_landmark](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -71,7 +71,6 @@ int main()
 			double sense_x = std::stod(j[1]["sense_x"].get<std::string>());
 			double sense_y = std::stod(j[1]["sense_y"].get<std::string>());
 			double sense_theta = std::stod(j[1]["sense_theta"].get<std::string>());
-
 			pf.init(sense_x, sense_y, sense_theta, sigma_pos);
 		  }
 		  else {
@@ -81,7 +80,6 @@ int main()
 
 			pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
 		  }
-
 		  // receive noisy observation data from the simulator
 		  // sense_observations in JSON format [{obs_x,obs_y},{obs_x,obs_y},...{obs_x,obs_y}]
 		  	vector<LandmarkObs> noisy_observations;
@@ -91,16 +89,12 @@ int main()
 		  	std::vector<float> x_sense;
   			std::istringstream iss_x(sense_observations_x);
 
-  			std::copy(std::istream_iterator<float>(iss_x),
-        	std::istream_iterator<float>(),
-        	std::back_inserter(x_sense));
+  			std::copy(std::istream_iterator<float>(iss_x), std::istream_iterator<float>(),std::back_inserter(x_sense));
 
         	std::vector<float> y_sense;
   			std::istringstream iss_y(sense_observations_y);
 
-  			std::copy(std::istream_iterator<float>(iss_y),
-        	std::istream_iterator<float>(),
-        	std::back_inserter(y_sense));
+  			std::copy(std::istream_iterator<float>(iss_y), std::istream_iterator<float>(), std::back_inserter(y_sense));
 
         	for(int i = 0; i < x_sense.size(); i++)
         	{
@@ -127,9 +121,8 @@ int main()
 			}
 			weight_sum += particles[i].weight;
 		  }
-		  cout << "highest w " << highest_weight << endl;
-		  cout << "average w " << weight_sum/num_particles << endl;
-
+//		  cout << "highest w " << highest_weight << endl;
+//		  cout << "average w " << weight_sum/num_particles << endl;
           json msgJson;
           msgJson["best_particle_x"] = best_particle.x;
           msgJson["best_particle_y"] = best_particle.y;
@@ -141,9 +134,9 @@ int main()
           msgJson["best_particle_sense_y"] = pf.getSenseY(best_particle);
 
           auto msg = "42[\"best_particle\"," + msgJson.dump() + "]";
-          // std::cout << msg << std::endl;
+//          std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-	  
+
         }
       } else {
         std::string msg = "42[\"manual\",{}]";
@@ -189,90 +182,4 @@ int main()
   }
   h.run();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
